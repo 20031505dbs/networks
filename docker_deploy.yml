@@ -1,0 +1,43 @@
+---
+- name: Deploy Apache Docker container with specific networking
+  hosts: local
+  become: true
+  become_method: sudo
+
+  vars:
+    docker_network_name: assignment_network
+    docker_subnet: 172.168.10.0/30
+    container_name: apache_container
+    container_image: httpd:latest
+    apache_port: 8080
+
+  tasks:
+
+    - name: Ensure Docker is started and enabled
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create Docker network with specific subnet
+      docker_network:
+        name: "{{ docker_network_name }}"
+        ipam_config:
+          - subnet: "{{ docker_subnet }}"
+        state: present
+
+    - name: Deploy Apache container on the custom network
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ container_image }}"
+        state: started
+        ports:
+          - "8080:{{ apache_port }}"
+        networks:
+          - name: "{{ docker_network_name }}"
+
+  handlers:
+    - name: Restart Apache container
+      docker_container:
+        name: "{{ container_name }}"
+        state: restarted
