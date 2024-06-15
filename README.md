@@ -6,4 +6,4 @@ The objective of this repository is to use Ansible to automate the deployment of
 ansible-playbook -i inventory docker_deploy.yml --ask-become-pass
 ```
 ## Diagram
-<!-- ![Diagram]() -->
+![Diagram](CA1.drawio.png)
